@@ -1,6 +1,8 @@
 package com.codexp.springmetric.monitor;
 
 import com.codexp.springmetric.config.ExecutionMonitorProperties;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -15,6 +17,21 @@ class ExecutionMonitorTest {
                 ExecutionMonitorProperties properties = new ExecutionMonitorProperties();
                 properties.setPrintIntervalSeconds(0);  // To prevent scheduled tasks during testing
                 return properties;
+        }
+
+        private ExecutionMonitor executionMonitor;
+        private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+        private final PrintStream originalOut = System.out;
+
+        @BeforeEach
+        public void setUp() {
+                executionMonitor = new ExecutionMonitor();
+                System.setOut(new PrintStream(outContent));
+        }
+
+        @AfterEach
+        public void restoreStreams() {
+                System.setOut(originalOut);
         }
 
         @Test
@@ -77,4 +94,34 @@ class ExecutionMonitorTest {
 
                 // TODO: Add logic to verify that resources (like executors) are properly shut down. if isExecutorShutdown() in ExecutionMonitor: assertTrue(executionMonitor.isExecutorShutdown());
         }
+
+        @Test
+        public void testTrackExecutionWithPrintToConsole() {
+                executionMonitor.trackExecution(() -> {
+                        try {
+                                Thread.sleep(50); // Simulate some task that takes 50ms
+                        } catch (InterruptedException e) {
+                                e.printStackTrace();
+                        }
+                }, "Test Task", true);
+
+                String printedOutput = outContent.toString();
+                assertTrue(printedOutput.contains("Test Task took"));
+                assertTrue(printedOutput.contains("ms."));
+        }
+
+        @Test
+        public void testTrackExecutionWithoutPrintToConsole() {
+                executionMonitor.trackExecution(() -> {
+                        try {
+                                Thread.sleep(50); // Simulate some task that takes 50ms
+                        } catch (InterruptedException e) {
+                                e.printStackTrace();
+                        }
+                }, "Test Task", false);
+
+                String printedOutput = outContent.toString();
+                assertTrue(printedOutput.isEmpty());
+        }
+
 }

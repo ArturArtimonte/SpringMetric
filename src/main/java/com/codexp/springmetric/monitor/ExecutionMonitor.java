@@ -29,6 +29,10 @@ public class ExecutionMonitor implements AutoCloseable {
         public ExecutionMonitor(int printIntervalSeconds, ExecutionMonitorProperties properties) {
         }
 
+        public ExecutionMonitor() {
+
+        }
+
         public void incrementLinesProcessed() {
                 processedLines.incrementAndGet();
                 progressMonitor.incrementProcessedLines();
@@ -42,6 +46,23 @@ public class ExecutionMonitor implements AutoCloseable {
         public void printProgressAndErrors() {
                 progressMonitor.printProgress(1000.0f);
                 errorTracker.printErrors();
+        }
+
+        public void trackExecution(Runnable task, String description, boolean printToConsole) {
+                long startTime = System.currentTimeMillis();
+                try {
+                        task.run();
+                } finally {
+                        long endTime = System.currentTimeMillis();
+                        long executionTime = endTime - startTime;
+
+                        // If the flag is set, print the execution time to the console.
+                        if (printToConsole) {
+                                System.out.println(description + " took " + executionTime + "ms.");
+                        }
+
+                        // TODO: Implement logging and persistency for the execution time and description.
+                }
         }
 
         ErrorTracker getErrorTracker() {
