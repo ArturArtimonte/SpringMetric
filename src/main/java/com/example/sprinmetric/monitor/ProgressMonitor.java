@@ -14,6 +14,10 @@ public class ProgressMonitor {
                 return processedLines.get();
         }
 
+        public void printProgress(int lineNumber, float totalLines) {
+                System.out.println("Line " + lineNumber + " / " + totalLines + " in " + getExecutionTime());
+        }
+
         public String getExecutionTime() {
                 long elapsedMillis = System.currentTimeMillis() - startTime;
                 long elapsedSeconds = elapsedMillis / 1000;

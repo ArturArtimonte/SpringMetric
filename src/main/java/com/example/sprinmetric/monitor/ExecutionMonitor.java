@@ -14,19 +14,19 @@ public class ExecutionMonitor implements AutoCloseable {
         private final ErrorTracker errorTracker = new ErrorTracker();
         private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        private final ExecutionMonitorProperties properties;
+        private ExecutionMonitorProperties properties;
 
         @Autowired
         public ExecutionMonitor(ExecutionMonitorProperties properties) {
                 this.properties = properties;
                 int printIntervalSeconds = properties.getPrintIntervalSeconds();
                 if (printIntervalSeconds > 0) {
-                        scheduler.scheduleAtFixedRate(this::printProgress, printIntervalSeconds, printIntervalSeconds, TimeUnit.SECONDS);
+                        scheduler.scheduleAtFixedRate(this::printProgressAndErrors, printIntervalSeconds, printIntervalSeconds, TimeUnit.SECONDS);
                 }
         }
 
         public ExecutionMonitor(int printIntervalSeconds, ExecutionMonitorProperties properties) {
-                this.properties = properties;
+
         }
 
         public void incrementProcessedLines() {
@@ -37,14 +37,19 @@ public class ExecutionMonitor implements AutoCloseable {
                 errorTracker.addError(lineNumber, error);
         }
 
-        public void printProgress() {
-                // TODO print
+        public void printProgressAndErrors() {
+                int processedLines = progressMonitor.getProcessedLines();
+                // Assuming totalLines is known or can be fetched. Placeholder value used here.Todo Fetch the total lines
+                float totalLines = 1000.0f;
+                progressMonitor.printProgress(processedLines, totalLines);
+                errorTracker.printErrors();
         }
 
         @Override
         public void close() throws Exception {
                 scheduler.shutdown();
-                // TODO shutdown logic
+                if (!scheduler.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                        scheduler.shutdownNow();
+                }
         }
 }
-

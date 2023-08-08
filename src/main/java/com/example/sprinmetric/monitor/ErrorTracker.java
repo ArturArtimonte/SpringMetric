@@ -14,4 +14,9 @@ public class ErrorTracker {
         public Map<Integer, String> getErrors() {
                 return new HashMap<>(errors);  // return a copy to prevent external modification
         }
+
+        public void printErrors() {
+                System.out.println("Errors (" + errors.size() + "):");
+                errors.forEach((line, error) -> System.out.println("Line " + line + ": " + error));
+        }
 }
