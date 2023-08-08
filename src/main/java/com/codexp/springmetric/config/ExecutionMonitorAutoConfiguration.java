@@ -1,6 +1,6 @@
-package com.example.sprinmetric.config;
+package com.codexp.springmetric.config;
 
-import com.example.sprinmetric.monitor.ExecutionMonitor;
+import com.codexp.springmetric.monitor.ExecutionMonitor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

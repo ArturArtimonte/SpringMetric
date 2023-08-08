@@ -1,4 +1,4 @@
-package com.example.sprinmetric.config;
+package com.codexp.springmetric.config;
 
 import jakarta.validation.constraints.Min;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,6 +1,6 @@
-package com.example.sprinmetric.monitor;
+package com.codexp.springmetric.monitor;
 
-import com.example.sprinmetric.config.ExecutionMonitorProperties;
+import com.codexp.springmetric.config.ExecutionMonitorProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

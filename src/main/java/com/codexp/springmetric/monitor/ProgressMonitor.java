@@ -1,4 +1,4 @@
-package com.example.sprinmetric.monitor;
+package com.codexp.springmetric.monitor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
