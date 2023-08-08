@@ -1,5 +1,6 @@
 package com.codexp.springmetric.monitor;
 
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProgressMonitor {
@@ -10,12 +11,10 @@ public class ProgressMonitor {
                 processedLines.incrementAndGet();
         }
 
-        public int getProcessedLines() {
-                return processedLines.get();
-        }
-
-        public void printProgress(int lineNumber, float totalLines) {
-                System.out.println("Line " + lineNumber + " / " + totalLines + " in " + getExecutionTime());
+        public void printProgress(float totalLines) {
+                float percentage = (processedLines.get() / totalLines) * 100;
+                String lineSeparator = System.lineSeparator();
+                System.out.printf(Locale.US, "Progress: %d lines processed out of %.0f (%.2f%%)%s", processedLines.get(), totalLines, percentage, lineSeparator);
         }
 
         public String getExecutionTime() {

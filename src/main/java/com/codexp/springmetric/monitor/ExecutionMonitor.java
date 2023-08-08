@@ -7,13 +7,14 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class ExecutionMonitor implements AutoCloseable {
         private final ProgressMonitor progressMonitor = new ProgressMonitor();
         private final ErrorTracker errorTracker = new ErrorTracker();
+        private final AtomicInteger processedLines = new AtomicInteger();
         private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
         private ExecutionMonitorProperties properties;
 
         @Autowired
@@ -26,23 +27,25 @@ public class ExecutionMonitor implements AutoCloseable {
         }
 
         public ExecutionMonitor(int printIntervalSeconds, ExecutionMonitorProperties properties) {
-
         }
 
-        public void incrementProcessedLines() {
+        public void incrementLinesProcessed() {
+                processedLines.incrementAndGet();
                 progressMonitor.incrementProcessedLines();
         }
+
 
         public void addError(int lineNumber, String error) {
                 errorTracker.addError(lineNumber, error);
         }
 
         public void printProgressAndErrors() {
-                int processedLines = progressMonitor.getProcessedLines();
-                // Assuming totalLines is known or can be fetched. Placeholder value used here.Todo Fetch the total lines
-                float totalLines = 1000.0f;
-                progressMonitor.printProgress(processedLines, totalLines);
+                progressMonitor.printProgress(1000.0f);
                 errorTracker.printErrors();
+        }
+
+        ErrorTracker getErrorTracker() {
+                return errorTracker;
         }
 
         @Override
