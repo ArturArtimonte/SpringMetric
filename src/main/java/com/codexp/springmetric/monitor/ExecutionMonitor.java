@@ -1,9 +1,12 @@
 package com.codexp.springmetric.monitor;
 
 import com.codexp.springmetric.config.ExecutionMonitorProperties;
+import com.codexp.springmetric.model.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +18,8 @@ public class ExecutionMonitor implements AutoCloseable {
         private final ErrorTracker errorTracker = new ErrorTracker();
         private final AtomicInteger processedLines = new AtomicInteger();
         private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        private long executionTime = 0;
+        private List<TaskInfo> taskInfoList = new ArrayList<>();
         private ExecutionMonitorProperties properties;
 
         @Autowired
@@ -54,26 +59,45 @@ public class ExecutionMonitor implements AutoCloseable {
                         task.run();
                 } finally {
                         long endTime = System.currentTimeMillis();
-                        long executionTime = endTime - startTime;
+                        executionTime += (endTime - startTime);
 
-                        // If the flag is set, print the execution time to the console.
+                        long taskExecutionTime = endTime - startTime;
+                        long elapsedSeconds = taskExecutionTime / 1000;
+                        long minutes = elapsedSeconds / 60;
+                        long seconds = elapsedSeconds % 60;
+                        String formattedTime = String.format("%02d:%02d", minutes, seconds);
+
+                        TaskInfo currentTaskInfo = new TaskInfo(description, formattedTime);
+                        taskInfoList.add(currentTaskInfo);
+
                         if (printToConsole) {
-                                System.out.println(description + " took " + executionTime + "ms.");
+                                System.out.println(currentTaskInfo.toString());
                         }
 
                         // TODO: Implement logging and persistency for the execution time and description.
                 }
         }
 
+        public List<TaskInfo> getTaskInfoList() {
+                return taskInfoList;
+        }
+
         ErrorTracker getErrorTracker() {
                 return errorTracker;
         }
 
+        public String getExecutionTime() {
+                return progressMonitor.getExecutionTime();
+        }
+
         @Override
         public void close() throws Exception {
+
+                System.out.println("Closing ExecutionMonitor...");
                 scheduler.shutdown();
                 if (!scheduler.awaitTermination(800, TimeUnit.MILLISECONDS)) {
                         scheduler.shutdownNow();
                 }
+                System.out.println("ExecutionMonitor closed successfully.");
         }
 }
